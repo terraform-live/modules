@@ -32,7 +32,8 @@ data "template_file" "user_data" {
 ################### SSH Key ###################
 resource "aws_key_pair" "deployer" {
   key_name   = var.ssh_key
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC74QjI9F/q2ORxNrPT1OszLSHdWE5uAIMBNzuudR3esovVH74/k7AfHTF8CHaLmZ/8ToRrHGlzHdnzR4tfAXm3LfZ2xrd1E+6SP7q/TEEFf+vYhYiTO5rUV7IGiON3ZBj4UOh3mQ5wQtwquVqszn7dNofMA37zSorUuutX18Lzt3FqKT51G37zWVaK9JPMqPCeeDqKngJvX1i8QAJT8VipF0rlSo71dHPVr8zIoE/LUf8ytuab1Lom4leMG86qK2pw+givXqiqjUcnTX4enhZGtK/ai/pJpwhcABpuC21TMCF5p0Z3PTkrZhno8MTi8+trIK2z+nD4gVdeciGBs4w5 Chysome@McNathan"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzhTDvmbPqQpL5O1wXPRsyWMtgliPe00VNpHSlgK4n4zpkpR9ITTBQQjRhFDl05HuT4NkmLAoGI4Jl2BVCBZVYyYq1IiBTe6V6o5br+kiqXmS2QdU4O9SlBvNcx8bb6Iu7pJvhGmq97RL+Y816txdGgVUCLqWkvzllgUkzcUf+I4oFekJK7GrsaI7IRw/ksYLnJuU/eTdeQWHT789LBhXYOyWTb8osG/esqZt8ccvSeFeQu8m4Qv+Q2XKD/BUVyDh1ss29QGSdMogRtJzRzKzgMImoAJEHvbuO8R+GK7AEFMJ0ZrftTCv7UlvQ5U7NOYN7smZgvY+3ftP1LqL2vMwJ Chysome@McNathan"
+
 }
 ################### Instance security Group ###################
 
@@ -69,7 +70,7 @@ resource "aws_security_group_rule" "instance_ssh_inbound" {
 ################### Configure Autoscaling Group ###################
 
 resource "aws_launch_configuration" "example" {
-	image_id 				= "ami-0c55b159cbfafe1f0"
+	image_id 				= "ami-0a54aef4ef3b5f881"
 	instance_type		= var.instance_type
 	security_groups	= [aws_security_group.instance.id]
 	user_data				= data.template_file.user_data.rendered
@@ -170,9 +171,9 @@ resource "aws_lb_target_group" "asg" {
 		protocol = "HTTP"
 		matcher  = "200"
 		interval = 15
-		timeout	 = 3
-		healthy_threshold   = 2
-		unhealthy_threshold = 2
+		timeout	 = 5
+		healthy_threshold   = 10
+		unhealthy_threshold = 10
 	}
 }
 

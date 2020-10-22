@@ -1,10 +1,11 @@
 #!/bin/bash
-sudo apt update
+sudo yum install httpd
 sudo apt upgrade
 sudo apt install nginx
-sudo systemctl enable nginx
-sudo systemctl start nginx
-sudo ufw allow http
-sudo ufw enable
-sed -i 's/80/8080/g' /etc/nginx/sites-enabled/default
-sudo systemctl start nginx
+sudo systemctl enable httpd
+sudo systemctl start httpd
+sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf
+sudo yum install policycoreutils
+sudo semanage port -a -t http_port_t -p tcp 8080
+sudo semanage port -m -t http_port_t -p tcp 8080
+sudo systemctl restart httpd
