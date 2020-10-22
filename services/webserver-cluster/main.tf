@@ -70,7 +70,7 @@ resource "aws_security_group_rule" "instance_ssh_inbound" {
 ################### Configure Autoscaling Group ###################
 
 resource "aws_launch_configuration" "example" {
-	image_id 				= "ami-0a54aef4ef3b5f881"
+	image_id 				= "ami-027cab9a7bf0155df"
 	instance_type		= var.instance_type
 	security_groups	= [aws_security_group.instance.id]
 	user_data				= data.template_file.user_data.rendered

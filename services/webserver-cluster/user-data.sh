@@ -1,9 +1,12 @@
 #!/bin/bash
+cat > /var/www/html/index.html <<EOF
+<h1>This is a Great Day</h1>
+<p>DB address: ${db_address}</p>
+<p>DB port: ${db_port}</p>
+EOF
+
 sudo yum -y install httpd
-sudo systemctl enable httpd
-sudo systemctl start httpd
+sudo chkconfig --add  httpd
+sudo service httpd start
 sudo sed -i 's/Listen 80/Listen 8080/' /etc/httpd/conf/httpd.conf
-sudo yum -y install policycoreutils
-sudo semanage port -a -t http_port_t -p tcp 8080
-sudo semanage port -m -t http_port_t -p tcp 8080
-sudo systemctl restart httpd
+sudo service http restart
