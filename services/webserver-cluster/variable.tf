@@ -45,3 +45,9 @@ locals {
   tcp_protocol = "tcp"
   all_ips = ["0.0.0.0/0"]
 }
+
+variable "custom_tags" {
+  description = "Custom tags to set on the ASG instances"
+  type        = map(string)
+  default     = {} 
+}
