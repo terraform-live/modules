@@ -1,3 +1,11 @@
+variable "s3_key" {
+  description = "The path to state file backend in S3"  
+}
+
+variable "aws_region" {
+  description = "AWS region"
+}
+
 variable "ssh_key" {
   description = "SSh key for instances"
   type        = string
