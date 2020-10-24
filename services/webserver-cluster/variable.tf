@@ -3,6 +3,12 @@ variable "s3_backend" {
   type        = string  
 }
 
+variable "ami" {
+  description = "The AMI to run in the cluster"
+  type        = string
+  default     = "ami-0ac80df6eff0e70b5"
+}
+
 variable "ssh_key" {
   description = "SSh key for instances"
   type        = string
