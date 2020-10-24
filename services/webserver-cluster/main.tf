@@ -45,7 +45,6 @@ data "template_file" "user_data" {
 resource "aws_key_pair" "deployer" {
   key_name   = var.ssh_key
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzhTDvmbPqQpL5O1wXPRsyWMtgliPe00VNpHSlgK4n4zpkpR9ITTBQQjRhFDl05HuT4NkmLAoGI4Jl2BVCBZVYyYq1IiBTe6V6o5br+kiqXmS2QdU4O9SlBvNcx8bb6Iu7pJvhGmq97RL+Y816txdGgVUCLqWkvzllgUkzcUf+I4oFekJK7GrsaI7IRw/ksYLnJuU/eTdeQWHT789LBhXYOyWTb8osG/esqZt8ccvSeFeQu8m4Qv+Q2XKD/BUVyDh1ss29QGSdMogRtJzRzKzgMImoAJEHvbuO8R+GK7AEFMJ0ZrftTCv7UlvQ5U7NOYN7smZgvY+3ftP1LqL2vMwJ Chysome@McNathan"
-
 }
 ################### Instance security Group ###################
 
