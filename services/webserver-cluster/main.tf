@@ -1,3 +1,15 @@
+
+terraform {
+  backend "s3" {
+    bucket = "chysome-terraform-up-and-running"
+    key    = var.s3_key
+    region = var.aws_region
+    dynamodb_table = "chysome-terraform-up-and-running-lock"
+    encrypt        = true
+  }
+}
+
+
 ################### Define data sources here ###################
 
 ## Remote State for db ##
