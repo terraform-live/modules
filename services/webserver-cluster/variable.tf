@@ -1,4 +1,4 @@
-variable "key" {
+variable "s3_backend" {
   description = "The path to state file backend in S3"
   type        = string  
 }

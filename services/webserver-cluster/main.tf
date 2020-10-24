@@ -2,7 +2,7 @@
 terraform {
   backend "s3" {
     bucket = "chysome-terraform-up-and-running"
-    key    = var.key
+    key    = var.s3_backend
     region = "us-east-2"
     dynamodb_table = "chysome-terraform-up-and-running-lock"
     encrypt        = true
