@@ -1,9 +1,6 @@
-variable "s3_key" {
-  description = "The path to state file backend in S3"  
-}
-
-variable "aws_region" {
-  description = "AWS region"
+variable "s3_backend" {
+  description = "The path to state file backend in S3"
+  type        = string  
 }
 
 variable "ssh_key" {
