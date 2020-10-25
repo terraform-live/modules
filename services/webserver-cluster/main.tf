@@ -110,14 +110,13 @@ resource "aws_launch_configuration" "example" {
   image_id        = var.ami
   instance_type   = var.instance_type
   security_groups = [aws_security_group.instance.id]
-        key_name                                = aws_key_pair.deployer.key_name
-  user_data   = (
+  key_name    = aws_key_pair.deployer.key_name
+
+  user_data = (
     length(data.template_file.user_data[*]) > 0
       ? data.template_file.user_data[0].rendered
       : data.template_file.user_data_new[0].rendered
   )
-  
-
   lifecycle {
      create_before_destroy = true
      }
