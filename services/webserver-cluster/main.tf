@@ -323,8 +323,8 @@ resource "aws_iam_user_policy_attachment" "neo_cloudwatch_read_only" {
   user = aws_iam_user.example[0].name
   policy_arn = aws_iam_policy.cloudwatch_read_only.arn
 }
-resource "aws_iam_user" "example" {
-  for_each = toset(var.user_names)
-  name     = each.value
-}
+#resource "aws_iam_user" "example" {
+#  for_each = toset(var.user_names)
+#  name     = each.value
+#}
 
