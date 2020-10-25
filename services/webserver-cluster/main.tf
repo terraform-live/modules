@@ -33,7 +33,9 @@ data "aws_subnet_ids" "default" {
 
 ## User Data ##
 data "template_file" "user_data" {
+        count    = var.enable_new_user_data ? 0 : 1
 	template = file("${path.module}/user-data.sh")
+   
 
 	vars = {
 		server_port = var.server_port
@@ -41,11 +43,26 @@ data "template_file" "user_data" {
 		db_port			= data.terraform_remote_state.db.outputs.port
 	}
 }
+
+data "template_file "user_data_new" {
+  count    = var.enable_new_user_data ? 1 : 0
+  template = file("${path.module}/user-data-new.sh")
+
+  vars = {
+    server_port = var.server_port
+  }
+}
+
+
 ################### SSH Key ###################
+
+
 resource "aws_key_pair" "deployer" {
   key_name   = var.ssh_key
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzhTDvmbPqQpL5O1wXPRsyWMtgliPe00VNpHSlgK4n4zpkpR9ITTBQQjRhFDl05HuT4NkmLAoGI4Jl2BVCBZVYyYq1IiBTe6V6o5br+kiqXmS2QdU4O9SlBvNcx8bb6Iu7pJvhGmq97RL+Y816txdGgVUCLqWkvzllgUkzcUf+I4oFekJK7GrsaI7IRw/ksYLnJuU/eTdeQWHT789LBhXYOyWTb8osG/esqZt8ccvSeFeQu8m4Qv+Q2XKD/BUVyDh1ss29QGSdMogRtJzRzKzgMImoAJEHvbuO8R+GK7AEFMJ0ZrftTCv7UlvQ5U7NOYN7smZgvY+3ftP1LqL2vMwJ Chysome@McNathan"
 }
+
+
 ################### Instance security Group ###################
 
 resource "aws_security_group" "instance" {
@@ -60,7 +77,7 @@ resource "aws_security_group_rule" "instance_inbound" {
   cidr_blocks       = local.all_ips
   }
 
-	resource "aws_security_group_rule" "instance_outbound" {
+resource "aws_security_group_rule" "instance_outbound" {
     type        = "egress"
     security_group_id = aws_security_group.instance.id
     from_port   = local.any_port
@@ -93,8 +110,13 @@ resource "aws_launch_configuration" "example" {
 	image_id 				= var.ami
 	instance_type		= var.instance_type
 	security_groups	= [aws_security_group.instance.id]
-	user_data				= data.template_file.user_data.rendered
-	key_name				= aws_key_pair.deployer.key_name
+        key_name                                = aws_key_pair.deployer.key_name
+	user_data   = (
+	  length(data.template_file.user_data[*]) > 0
+	    ? data.template_file.user_data[0].rendered
+	    : data.template_file.user_data_new[0].rendered
+	)
+	
 
 	lifecycle {
 	   create_before_destroy = true
@@ -226,3 +248,6 @@ resource "aws_autoscaling_schedule" "scale_in-at-night" {
   recurrence = "0 17 * * *"
   autoscaling_group_name = aws_autoscaling_group.example.name
 }
+
+
+
