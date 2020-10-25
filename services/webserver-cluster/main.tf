@@ -153,7 +153,7 @@ resource "aws_security_group_rule" "allow_http_outbound" {
     security_group_id = aws_security_group.alb.id
     from_port   = local.any_port
     to_port     = local.any_port
-    protocol    = local.tcp_protocol
+    protocol    = local.any_protocol
     cidr_blocks = local.all_ips
 }
 
