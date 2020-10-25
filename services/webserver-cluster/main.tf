@@ -53,6 +53,24 @@ data "template_file" "user_data_new" {
   }
 }
 
+data "aws_iam_policy_document" "cloudwatch_read_only" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "cloudwatch:Describe*",
+      "cloudwatch:Get*",
+      "cloudwatch:List*"
+    ]
+    resources = ["*"]
+  }
+}
+data "aws_iam_policy_document" "cloudwatch_full_access" {
+  statement {
+    effect = "Allow"
+    actions = ["cloudwatch:*"]
+    resources = ["*"]
+  }
+}
 
 ################### SSH Key ###################
 
@@ -247,3 +265,66 @@ resource "aws_autoscaling_schedule" "scale_in-at-night" {
   recurrence = "0 17 * * *"
   autoscaling_group_name = aws_autoscaling_group.example.name
 }
+
+resource "aws_cloudwatch_metric_alarm" "high_cpu_utilization" {
+  alarm_name = "${var.cluster_name}-high-cpu-utilization"
+  namespace = "AWS/EC2"
+  metric_name = "CPUUtilization"
+
+  dimensions = {
+    AutoScalingGroupName = "aws_autoscaling_group.example.name"
+  }
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods = 1
+  period = 300
+  statistic = "Average"
+  threshold = 90
+  unit = "Percent"
+}
+
+################### Use if statement ##################
+resource "aws_cloudwatch_metric_alarm" "low_cpu_credit_balance" {
+  count = format("%.1s", var.instance_type) == "t" ? 1 : 0
+
+  alarm_name = "${var.cluster_name}-low-cpu-credit-baance"
+  namespace = "AWS/EC2"
+  metric_name = "CPUCreditBalance"
+
+  dimensions = {
+    AutoScalingGroupName = "aws_autoscaling_group.example.name"
+  }
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods = 1
+  period = 300
+  statistic = "Minimum"
+  threshold = 10
+  unit = "Count"
+}
+
+################### If-else-statements ##################
+resource "aws_iam_policy" "cloudwatch_read_only" {
+  name = "cloudwatch-read-only"
+  policy = data.aws_iam_policy_document.cloudwatch_read_only.json
+}
+resource "aws_iam_policy" "cloudwatch_full_access" {
+  name = "cloudwatch-read-only"
+  policy = data.aws_iam_policy_document.cloudwatch_full_access.json
+}
+
+resource "aws_iam_user_policy_attachment" "neo_cloudwatch_full_access" {
+  count = var.give_neo_cloudwatch_full_access ? 1 : 0
+
+  user = aws_iam_user.example[0].name
+  policy_arn = aws_iam_policy.cloudwatch_full_access.arn
+}
+resource "aws_iam_user_policy_attachment" "neo_cloudwatch_read_only" {
+  count = var.give_neo_cloudwatch_full_access ? 0 : 1
+
+  user = aws_iam_user.example[0].name
+  policy_arn = aws_iam_policy.cloudwatch_read_only.arn
+}
+resource "aws_iam_user" "example" {
+  for_each = toset(var.user_names)
+  name     = each.value
+}
+
