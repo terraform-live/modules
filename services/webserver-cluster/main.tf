@@ -1,4 +1,3 @@
-
 terraform {
   backend "s3" {
     bucket = "chysome-terraform-up-and-running"
@@ -15,12 +14,12 @@ terraform {
 ## Remote State for db ##
 
 data "terraform_remote_state" "db" {
-	backend = "s3"
-	config = {
-		bucket = var.db_remote_state_bucket
-		key    = var.db_remote_state_key
-		region = "us-east-2"
-	}
+  backend = "s3"
+  config = {
+    bucket = var.db_remote_state_bucket
+    key    = var.db_remote_state_key
+    region = "us-east-2"
+  }
 }
 
 data "aws_vpc" "default" {
@@ -34,14 +33,14 @@ data "aws_subnet_ids" "default" {
 ## User Data ##
 data "template_file" "user_data" {
   count    = var.enable_new_user_data ? 0 : 1
-	template = file("${path.module}/user-data.sh")
+  template = file("${path.module}/user-data.sh")
    
 
-	vars = {
-		server_port = var.server_port
-		db_address  = data.terraform_remote_state.db.outputs.address
-		db_port			= data.terraform_remote_state.db.outputs.port
-	}
+  vars = {
+    server_port = var.server_port
+    db_address  = data.terraform_remote_state.db.outputs.address
+    db_port     = data.terraform_remote_state.db.outputs.port
+  }
 }
 
 data "template_file "user_data_new" {
@@ -94,7 +93,7 @@ resource "aws_security_group_rule" "instance_allinbound" {
   to_port     = local.any_port
   protocol    = local.any_protocol
   cidr_blocks = local.all_ips
-  }
+}
 
 resource "aws_security_group_rule" "instance_ssh_inbound" {
   type              = "ingress"
@@ -103,61 +102,61 @@ resource "aws_security_group_rule" "instance_ssh_inbound" {
   to_port           = local.ssh_port
   protocol          = local.tcp_protocol
   cidr_blocks       = ["68.134.166.135/32"]
-  }
+}
 
 ################### Configure Autoscaling Group ###################
 
 resource "aws_launch_configuration" "example" {
-	image_id 				= var.ami
-	instance_type		= var.instance_type
-	security_groups	= [aws_security_group.instance.id]
+  image_id        = var.ami
+  instance_type   = var.instance_type
+  security_groups = [aws_security_group.instance.id]
         key_name                                = aws_key_pair.deployer.key_name
-	user_data   = (
-	  length(data.template_file.user_data[*]) > 0
-	    ? data.template_file.user_data[0].rendered
-	    : data.template_file.user_data_new[0].rendered
-	)
-	
+  user_data   = (
+    length(data.template_file.user_data[*]) > 0
+      ? data.template_file.user_data[0].rendered
+      : data.template_file.user_data_new[0].rendered
+  )
+  
 
-	lifecycle {
-	   create_before_destroy = true
+  lifecycle {
+     create_before_destroy = true
      }
 }
 
 resource "aws_autoscaling_group" "example" {
-	launch_configuration = aws_launch_configuration.example.name	
-	vpc_zone_identifier  = data.aws_subnet_ids.default.ids
+  launch_configuration = aws_launch_configuration.example.name  
+  vpc_zone_identifier  = data.aws_subnet_ids.default.ids
       
-	target_group_arns = [aws_lb_target_group.asg.arn]
-	health_check_type = "ELB"
+  target_group_arns = [aws_lb_target_group.asg.arn]
+  health_check_type = "ELB"
 
   min_size = var.min_size
-	max_size = var.max_size
+  max_size = var.max_size
 
-	tag {
-	   key = "Name"
+  tag {
+     key = "Name"
      value = var.cluster_name
-		 propagate_at_launch = true
-	}
+     propagate_at_launch = true
+  }
 
-	dynamic "tag" {
-		for_each = var.custom_tags
-		
-		content {
-			key		=	tag.key
-			value	= tag.value
-			propagate_at_launch = true
-		}
-	}
+  dynamic "tag" {
+    for_each = var.custom_tags
+    
+    content {
+      key   = tag.key
+      value = tag.value
+      propagate_at_launch = true
+    }
+  }
 }
 
 ################### Configure Application Load Balancer ###################
 
 resource "aws_lb" "example" {
-	name = "${var.cluster_name}-example"
-	load_balancer_type = "application"
-	subnets		   = data.aws_subnet_ids.default.ids
-	security_groups	   = [aws_security_group.alb.id]
+  name = "${var.cluster_name}-example"
+  load_balancer_type = "application"
+  subnets      = data.aws_subnet_ids.default.ids
+  security_groups    = [aws_security_group.alb.id]
 }
 
 resource "aws_security_group" "alb" {
@@ -182,52 +181,52 @@ resource "aws_security_group_rule" "allow_http_outbound" {
 
 
 resource "aws_lb_listener" "http" {
-	load_balancer_arn = aws_lb.example.arn
-	port		  = local.http_port
-	protocol	= "HTTP"
+  load_balancer_arn = aws_lb.example.arn
+  port      = local.http_port
+  protocol  = "HTTP"
 
-	default_action {
-	    type	= "fixed-response"
+  default_action {
+      type  = "fixed-response"
 
-	    fixed_response {
-				content_type = "text/plain"
-				message_body = "404: Not found"
-				status_code  = 404
-            }
+      fixed_response {
+        content_type = "text/plain"
+        message_body = "404: Not found"
+        status_code  = 404
         }
+      }
 }    
 
 resource "aws_lb_listener_rule" "asg" {
-	listener_arn = aws_lb_listener.http.arn
-	priority     = 100
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 100
 
-	condition {
-	   path_pattern {
+  condition {
+     path_pattern {
         values   = ["*"]
      }
-	}
+  }
 
-	action {
-     type	      = "forward"
-	   target_group_arn = aws_lb_target_group.asg.arn
+  action {
+     type       = "forward"
+     target_group_arn = aws_lb_target_group.asg.arn
   }
 }
 
 resource "aws_lb_target_group" "asg" {
-	name = "${var.cluster_name}-example"
-	port = var.server_port
-	protocol = "HTTP"
-	vpc_id	 = data.aws_vpc.default.id
+  name = "${var.cluster_name}-example"
+  port = var.server_port
+  protocol = "HTTP"
+  vpc_id   = data.aws_vpc.default.id
 
-	health_check {
-		path	 =	"/"
-		protocol = "HTTP"
-		matcher  = "200"
-		interval = 15
-		timeout	 = 3
-		healthy_threshold   = 2
-		unhealthy_threshold = 2
-	}
+  health_check {
+    path   =  "/"
+    protocol = "HTTP"
+    matcher  = "200"
+    interval = 15
+    timeout  = 3
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
 }
 
 ################### Autoscaling Schedule ##################
@@ -249,6 +248,3 @@ resource "aws_autoscaling_schedule" "scale_in-at-night" {
   recurrence = "0 17 * * *"
   autoscaling_group_name = aws_autoscaling_group.example.name
 }
-
-
-
