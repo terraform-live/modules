@@ -33,7 +33,7 @@ data "aws_subnet_ids" "default" {
 
 ## User Data ##
 data "template_file" "user_data" {
-        count    = var.enable_new_user_data ? 0 : 1
+  count    = var.enable_new_user_data ? 0 : 1
 	template = file("${path.module}/user-data.sh")
    
 
@@ -46,6 +46,7 @@ data "template_file" "user_data" {
 
 data "template_file "user_data_new" {
   count    = var.enable_new_user_data ? 1 : 0
+  
   template = file("${path.module}/user-data-new.sh")
 
   vars = {
