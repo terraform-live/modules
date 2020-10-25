@@ -215,7 +215,6 @@ resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
   max_size = 10
   desired_capacity = 10
   recurrence = "15 15 * * *"
-  enable_autoscaling = true
   autoscaling_group_name = aws_autoscaling_group.example.name
 }
 resource "aws_autoscaling_schedule" "scale_in-at-night" {
@@ -225,6 +224,5 @@ resource "aws_autoscaling_schedule" "scale_in-at-night" {
   max_size = 10
   desired_capacity = 2
   recurrence = "0 17 * * *"
-  enable_autoscaling = true
   autoscaling_group_name = aws_autoscaling_group.example.name
 }
