@@ -76,3 +76,8 @@ variable "give_neo_cloudwatch_full_access"{
   description = "If True, neo gets full access to cloudwatch"
   type        = bool
 }
+variable "user_names" {
+   description = "User names in the environment"
+   type         = list(string)
+   default      = ["neo", "ugo", "emeka"]
+}
