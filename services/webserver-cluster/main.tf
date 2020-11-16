@@ -303,7 +303,7 @@ resource "aws_iam_policy" "cloudwatch_read_only" {
   policy = data.aws_iam_policy_document.cloudwatch_read_only.json
 }
 resource "aws_iam_policy" "cloudwatch_full_access" {
-  name = "cloudwatch-read-only"
+  name = "cloudwatch-full-access"
   policy = data.aws_iam_policy_document.cloudwatch_full_access.json
 }
 
