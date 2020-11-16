@@ -70,7 +70,7 @@ variable "enable_autoscaling" {
 
 variable "server_text" {
   description = "The text the webserver should return"
-  default     = "Hello World"
+  default     = "New server text"
   type        = string
 }
 variable "give_neo_cloudwatch_full_access"{
