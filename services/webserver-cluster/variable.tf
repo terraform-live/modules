@@ -68,9 +68,15 @@ variable "enable_autoscaling" {
   type        = bool
 }
 
-variable "enable_new_user_data" {
-  description = "If set to true, use the new user data script"
-  type 	      = bool
+# variable "enable_new_user_data" {
+#   description = "If set to true, use the new user data script"
+#   type 	      = bool
+#}
+
+variable "server_text" {
+  description = "The text the webserver should return"
+  default     = "Hello World"
+  type        = string
 }
 variable "give_neo_cloudwatch_full_access"{
   description = "If True, neo gets full access to cloudwatch"
